@@ -25,5 +25,7 @@ module.exports = {
     'no-console': 'off',
     'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
     'max-len': 'off',
+    'linebreak-style': 0,
+
   },
 };

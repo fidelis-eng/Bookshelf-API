@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const Book = require('./model/Book');
 const books = require('./books');
+const responses = require('./responses');
 
 const saveBookhandler = (request, h) => {
   const {
@@ -8,34 +9,13 @@ const saveBookhandler = (request, h) => {
   } = request.payload;
 
   if (name == null || name === '' || name === 'null') {
-    const response = h.response({
-      status: 'fail',
-      message: 'Gagal menambahkan buku. Mohon isi nama buku',
-    });
-    response.code(400);
-    response.type('application/json');
-    response.header('X-Custom', 'some-value');
-
-    return response;
+    return responses.errorResponse(h, 'fail', 400, 'Gagal menambahkan buku. Mohon isi nama buku');
   }
   if (readPage > pageCount) {
-    const response = h.response({
-      status: 'fail',
-      message: 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount',
-    });
-    response.code(400);
-    response.type('application/json');
-    response.header('X-Custom', 'some-value');
-
-    return response;
+    return responses.errorResponse(h, 'fail', 400, 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount');
   }
 
-  const finished = () => {
-    if (readPage === pageCount) {
-      return true;
-    }
-    return false;
-  };
+  const finished = () => (readPage === pageCount);
   const id = `${uuidv4()}`;
   const insertedAt = new Date().toISOString();
   const updatedAt = insertedAt;
@@ -48,28 +28,10 @@ const saveBookhandler = (request, h) => {
   }
 
   if (!isSuccess) {
-    const response = h.response({
-      status: 'error',
-      message: 'Buku gagal ditambahkan',
-    });
-    response.code(500);
-    response.type('application/json');
-    response.header('X-Custom', 'some-value');
-    return response;
+    return responses.errorResponse(h, 'error', 500, 'Buku gagal ditambahkan');
   }
 
-  const response = h.response({
-    status: 'success',
-    message: 'Buku berhasil ditambahkan',
-    data: {
-      bookId: id,
-    },
-  });
-  response.code(201);
-  response.type('application/json');
-  response.header('X-Custom', 'some-value');
-
-  return response;
+  return responses.successResponse(h, 'success', 201, 'Buku berhasil ditambahkan', 'bookId', id);
 };
 
 const getallbookshandler = (request, h) => {
@@ -89,16 +51,7 @@ const getallbookshandler = (request, h) => {
     // processing request based on name query
     if (name != null) {
       const nameQueryBooks = searchbooks.filter((book) => book.name.toLowerCase().includes(name.toLowerCase()));
-      const response = h.response({
-        status: 'success',
-        data: {
-          books: nameQueryBooks,
-        },
-      });
-      response.code(200);
-      response.type('application/json');
-      response.header('X-Custom', 'some-value');
-      return response;
+      return responses.successResponse(h, 'success', 200, '', 'books', nameQueryBooks);
     }
     // processing request based on reading query
     if (reading != null) {
@@ -111,16 +64,7 @@ const getallbookshandler = (request, h) => {
           }
         }
       }
-      const response = h.response({
-        status: 'success',
-        data: {
-          books: querybooks,
-        },
-      });
-      response.code(200);
-      response.type('application/json');
-      response.header('X-Custom', 'some-value');
-      return response;
+      return responses.successResponse(h, 'success', 200, '', 'books', querybooks);
     }
     // processing request based on finished query
     if (finished != null) {
@@ -133,40 +77,13 @@ const getallbookshandler = (request, h) => {
           }
         }
       }
-      const response = h.response({
-        status: 'success',
-        data: {
-          books: querybooks,
-        },
-      });
-      response.code(200);
-      response.type('application/json');
-      response.header('X-Custom', 'some-value');
-      return response;
+      return responses.successResponse(h, 'success', 200, '', 'books', querybooks);
     }
     // response without request query
-    const response = h.response({
-      status: 'success',
-      data: {
-        books: searchbooks,
-      },
-    });
-    response.code(200);
-    response.type('application/json');
-    response.header('X-Custom', 'some-value');
-    return response;
+    return responses.successResponse(h, 'success', 200, '', 'books', searchbooks);
   }
   // empty response
-  const response = h.response({
-    status: 'success',
-    data: {
-      books: [],
-    },
-  });
-  response.code(200);
-  response.type('application/json');
-  response.header('X-Custom', 'some-value');
-  return response;
+  return responses.successResponse(h, 'success', 200, '', 'books', []);
 };
 
 const getbookhandler = (request, h) => {
@@ -183,28 +100,9 @@ const getbookhandler = (request, h) => {
   }
 
   if (isExist) {
-    const response = h.response({
-      status: 'success',
-      data: {
-        book: books[iElement],
-      },
-    });
-    response.code(200);
-    response.type('application/json');
-    response.header('X-Custom', 'some-value');
-
-    return response;
+    return responses.successResponse(h, 'success', 200, '', 'book', books[iElement]);
   }
-
-  const response = h.response({
-    status: 'fail',
-    message: 'Buku tidak ditemukan',
-  });
-  response.code(404);
-  response.type('application/json');
-  response.header('X-Custom', 'some-value');
-
-  return response;
+  return responses.errorResponse(h, 'fail', 404, 'Buku tidak ditemukan');
 };
 
 const updatebookhandler = (request, h) => {
@@ -214,26 +112,10 @@ const updatebookhandler = (request, h) => {
   } = request.payload;
 
   if (name == null || name === '' || name === 'null') {
-    const response = h.response({
-      status: 'fail',
-      message: 'Gagal memperbarui buku. Mohon isi nama buku',
-    });
-    response.code(400);
-    response.type('application/json');
-    response.header('X-Custom', 'some-value');
-
-    return response;
+    return responses.errorResponse(h, 'fail', 400, 'Gagal memperbarui buku. Mohon isi nama buku');
   }
   if (readPage > pageCount) {
-    const response = h.response({
-      status: 'fail',
-      message: 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount',
-    });
-    response.code(400);
-    response.type('application/json');
-    response.header('X-Custom', 'some-value');
-
-    return response;
+    return responses.errorResponse(h, 'fail', 400, 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount');
   }
 
   let isExist = false;
@@ -246,24 +128,11 @@ const updatebookhandler = (request, h) => {
     }
   }
   if (!isExist) {
-    const response = h.response({
-      status: 'fail',
-      message: 'Gagal memperbarui buku. Id tidak ditemukan',
-    });
-    response.code(404);
-    response.type('application/json');
-    response.header('X-Custom', 'some-value');
-
-    return response;
+    return responses.errorResponse(h, 'fail', 404, 'Gagal memperbarui buku. Id tidak ditemukan');
   }
 
   const updatedAt = new Date().toISOString();
-  const finished = () => {
-    if (readPage === pageCount) {
-      return true;
-    }
-    return false;
-  };
+  const finished = () => (readPage === pageCount);
   try {
     books[iElement] = new Book(
       bookId,
@@ -279,25 +148,9 @@ const updatebookhandler = (request, h) => {
       books[iElement].insertedAt,
       updatedAt,
     );
-
-    const response = h.response({
-      status: 'success',
-      message: 'Buku berhasil diperbarui',
-    });
-    response.code(200);
-    response.type('application/json');
-    response.header('X-Custom', 'some-value');
-
-    return response;
+    return responses.successResponse(h, 'success', 200, 'Buku berhasil diperbarui');
   } catch (err) {
-    const response = h.response({
-      status: 'error',
-      message: 'Buku gagal dimodifikasi',
-    });
-    response.code(500);
-    response.type('application/json');
-    response.header('X-Custom', 'some-value');
-    return response;
+    return responses.errorResponse(h, 'error', 500, 'Buku gagal dimofikasi');
   }
 };
 
@@ -315,36 +168,14 @@ const deletebookhandler = (request, h) => {
   }
 
   if (!isExist) {
-    const response = h.response({
-      status: 'fail',
-      message: 'Buku gagal dihapus. Id tidak ditemukan',
-    });
-    response.code(404);
-    response.type('application/json');
-    response.header('X-Custom', 'some-value');
-    return response;
+    return responses.errorResponse(h, 'fail', 404, 'Buku gagal dihapus. Id tidak ditemukan');
   }
   const currentSize = books.length;
   books.splice(iElement, 1); // delete the data
   if (currentSize === books.length) {
-    const response = h.response({
-      status: 'error',
-      message: 'Buku gagal dihapus',
-    });
-    response.code(500);
-    response.type('application/json');
-    response.header('X-Custom', 'some-value');
-    return response;
+    return responses.errorResponse(h, 'error', 500, 'Buku gagal dihapus');
   }
-
-  const response = h.response({
-    status: 'success',
-    message: 'Buku berhasil dihapus',
-  });
-  response.code(200);
-  response.type('application/json');
-  response.header('X-Custom', 'some-value');
-  return response;
+  return responses.successResponse(h, 'success', 200, 'Buku berhasil dihapus');
 };
 
 module.exports = {
