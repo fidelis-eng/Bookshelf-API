@@ -81,18 +81,33 @@ const getallbookshandler = (request, h) => {
       publisher: books[i].publisher,
     });
   }
+  // request query of name, reading and finished
   const { name, reading, finished } = request.query;
+  // processing query
   if (books.length >= 0) {
     const querybooks = []; // books response according to query
-
+    // processing request based on name query
     if (name != null) {
-      for (let i = 0; i < books.length; i += 1) {
-        const wordsName = books[i].name.toLowerCase().split(' ');
-        const nameQuery = name.toLowerCase();
-
-        for (let j = 0; j < wordsName.length; j += 1) {
-          if (wordsName[j] === nameQuery) {
-            querybooks.push(searchbooks[i]);
+      const nameQueryBooks = searchbooks.filter((book) => book.name.toLowerCase().includes(name.toLowerCase()));
+      const response = h.response({
+        status: 'success',
+        data: {
+          books: nameQueryBooks,
+        },
+      });
+      response.code(200);
+      response.type('application/json');
+      response.header('X-Custom', 'some-value');
+      return response;
+    }
+    // processing request based on reading query
+    if (reading != null) {
+      const readingQueryBooks = books.filter((book) => Boolean(parseInt(reading, 10)) === book.reading);
+      for (let i = 0; i < readingQueryBooks.length; i += 1) {
+        for (let j = 0; j < books.length; j += 1) {
+          if (searchbooks[j].id === readingQueryBooks[i].id) {
+            querybooks.push(searchbooks[j]);
+            break;
           }
         }
       }
@@ -105,31 +120,17 @@ const getallbookshandler = (request, h) => {
       response.code(200);
       response.type('application/json');
       response.header('X-Custom', 'some-value');
-
       return response;
     }
-    if (reading != null) {
-      for (let i = 0; i < books.length; i += 1) {
-        if (books[i].reading === Boolean(parseInt(reading, 10))) {
-          querybooks.push(searchbooks[i]);
-        }
-      }
-      const response = h.response({
-        status: 'success',
-        data: {
-          books: querybooks,
-        },
-      });
-      response.code(200);
-      response.type('application/json');
-      response.header('X-Custom', 'some-value');
-
-      return response;
-    }
+    // processing request based on finished query
     if (finished != null) {
-      for (let i = 0; i < books.length; i += 1) {
-        if (books[i].finished === Boolean(parseInt(finished, 10))) {
-          querybooks.push(searchbooks[i]);
+      const finishedQueryBooks = books.filter((book) => Boolean(parseInt(finished, 10)) === book.finished);
+      for (let i = 0; i < finishedQueryBooks.length; i += 1) {
+        for (let j = 0; j < books.length; j += 1) {
+          if (searchbooks[j].id === finishedQueryBooks[i].id) {
+            querybooks.push(searchbooks[j]);
+            break;
+          }
         }
       }
       const response = h.response({
@@ -141,9 +142,9 @@ const getallbookshandler = (request, h) => {
       response.code(200);
       response.type('application/json');
       response.header('X-Custom', 'some-value');
-
       return response;
     }
+    // response without request query
     const response = h.response({
       status: 'success',
       data: {
@@ -153,9 +154,9 @@ const getallbookshandler = (request, h) => {
     response.code(200);
     response.type('application/json');
     response.header('X-Custom', 'some-value');
-
     return response;
   }
+  // empty response
   const response = h.response({
     status: 'success',
     data: {
@@ -165,7 +166,6 @@ const getallbookshandler = (request, h) => {
   response.code(200);
   response.type('application/json');
   response.header('X-Custom', 'some-value');
-
   return response;
 };
 
