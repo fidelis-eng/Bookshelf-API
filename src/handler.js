@@ -7,8 +7,7 @@ const saveBookhandler = (request, h) => {
     name, year, author, summary, publisher, pageCount, readPage, reading,
   } = request.payload;
 
-  // eslint-disable-next-line eqeqeq, quotes
-  if (name == null || name == "" || name == "null") {
+  if (name == null || name === '' || name === 'null') {
     const response = h.response({
       status: 'fail',
       message: 'Gagal menambahkan buku. Mohon isi nama buku',
@@ -42,7 +41,6 @@ const saveBookhandler = (request, h) => {
   const updatedAt = insertedAt;
   let isSuccess = false;
 
-  // eslint-disable-next-line max-len
   books.push(new Book(id, name, year, author, summary, publisher, pageCount, readPage, finished(), reading, insertedAt, updatedAt));
 
   if (books[books.length - 1].id === id) {
@@ -112,8 +110,7 @@ const getallbookshandler = (request, h) => {
     }
     if (reading != null) {
       for (let i = 0; i < books.length; i += 1) {
-        // eslint-disable-next-line eqeqeq
-        if (books[i].reading == reading) {
+        if (books[i].reading === reading) {
           querybooks.push(searchbooks[i]);
         }
       }
@@ -131,8 +128,7 @@ const getallbookshandler = (request, h) => {
     }
     if (finished != null) {
       for (let i = 0; i < books.length; i += 1) {
-        // eslint-disable-next-line eqeqeq
-        if (books[i].finished == finished) {
+        if (books[i].finished === finished) {
           querybooks.push(searchbooks[i]);
         }
       }
@@ -217,8 +213,7 @@ const updatebookhandler = (request, h) => {
     name, year, author, summary, publisher, pageCount, readPage, reading,
   } = request.payload;
 
-  // eslint-disable-next-line eqeqeq, quotes
-  if (name == null || name == "" || name == "null") {
+  if (name == null || name === '' || name === 'null') {
     const response = h.response({
       status: 'fail',
       message: 'Gagal memperbarui buku. Mohon isi nama buku',
