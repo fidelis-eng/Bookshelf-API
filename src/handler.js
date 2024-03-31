@@ -110,7 +110,7 @@ const getallbookshandler = (request, h) => {
     }
     if (reading != null) {
       for (let i = 0; i < books.length; i += 1) {
-        if (books[i].reading === reading) {
+        if (books[i].reading === Boolean(parseInt(reading, 10))) {
           querybooks.push(searchbooks[i]);
         }
       }
@@ -128,7 +128,7 @@ const getallbookshandler = (request, h) => {
     }
     if (finished != null) {
       for (let i = 0; i < books.length; i += 1) {
-        if (books[i].finished === finished) {
+        if (books[i].finished === Boolean(parseInt(finished, 10))) {
           querybooks.push(searchbooks[i]);
         }
       }
